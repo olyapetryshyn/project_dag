@@ -17,7 +17,8 @@ default_args = {
 
 
 def print_process_start(**op_kwargs):
-    print('{} start processing tables in database: {}.'.format(op_kwargs['dag_id'], op_kwargs['database']))
+    print('{} start processing tables in database: {}.'.format(
+        op_kwargs.get('dag_id', None), op_kwargs.get('database', None)))
 
 
 def check_table_exist():

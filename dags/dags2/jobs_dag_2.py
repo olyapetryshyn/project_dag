@@ -17,7 +17,7 @@ default_args = {
 
 
 def hello(**op_kwargs):
-    print('hello from dag2, var: {}'.format(op_kwargs['text']))
+    print('hello from dag2, var: {}'.format(op_kwargs.get('text', None)))
 
 
 var = Variable.get('some_var', deserialize_json=True)
