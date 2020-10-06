@@ -6,6 +6,8 @@ from airflow.operators.python_operator import PythonOperator, BranchPythonOperat
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.postgres_operator import PostgresOperator, PostgresHook
 from airflow.utils.trigger_rule import TriggerRule
+from operators.countoperator import PostgreSQLCountRowsOperator
+
 
 default_args = {
     'owner': 'Olya',
@@ -30,7 +32,7 @@ def check_table_exist(sql_to_get_schema, sql_to_check_table_exist, table_name):
     query = hook.get_records(sql=sql_to_get_schema)
     schema = None
     for result in query:
-        if 'airflow_table' in result:
+        if table_name in result:
             schema = result[0]
             print(schema)
             break
@@ -72,10 +74,8 @@ with DAG('gridu_dag_branching', default_args=default_args, schedule_interval='@h
                                                                                  datetime.timestamp(datetime.now())),
                                       trigger_rule=TriggerRule.ALL_DONE,
                                       postgres_conn_id='airflow_course_postgres')
-    query_the_table = PostgresOperator(task_id='query_the_table',
-                                       sql='SELECT COUNT(*) FROM airflow_table;',
-                                       postgres_conn_id='airflow_course_postgres',
-                                       do_xcom_push=True)
+    query_the_table = PostgreSQLCountRowsOperator(task_id='query_the_table', table_name='airflow_table',
+                                                  do_xcom_push=True, postgres_conn_id='airflow_course_postgres')
 
     print_process_start >> get_user >> table_exist >> [skip_table_creation,
                                                        create_table] >> insert_new_row >> query_the_table
