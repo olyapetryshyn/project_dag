@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta
+from pendulum import datetime
+from pendulum.time import timedelta
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.models import Variable
 
 
 default_args = {
@@ -16,14 +16,12 @@ default_args = {
 }
 
 
-def hello(**op_kwargs):
-    print('hello from dag2, var: {}'.format(op_kwargs['text']))
+def hello():
+    print('hello from dag2')
 
-
-var = Variable.get('some_var', deserialize_json=True)
 
 with DAG('gridu_dag2', default_args=default_args, schedule_interval='@hourly') as dag:
-    hello = PythonOperator(task_id='hello', python_callable=hello, op_kwargs=var)
+    hello = PythonOperator(task_id='hello', python_callable=hello)
     dummy = DummyOperator(task_id='dummy')
 
     hello.set_downstream(dummy)
