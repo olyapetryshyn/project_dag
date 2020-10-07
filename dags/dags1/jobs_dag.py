@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from pendulum import datetime
+from pendulum.time import timedelta
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import PythonOperator
@@ -16,8 +17,7 @@ default_args = {
 
 
 def print_logs(**op_kwargs):
-    print('{} start processing tables in database: {}.'.format(
-        op_kwargs.get('dag_id', None), op_kwargs.get('database', None)))
+    print(f'{op_kwargs.get("dag_id", None)} start processing tables in database: {op_kwargs.get("database", None)}.')
 
 
 def push_function(context):

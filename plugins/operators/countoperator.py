@@ -12,5 +12,5 @@ class PostgreSQLCountRowsOperator(BaseOperator):
         super(PostgreSQLCountRowsOperator, self).__init__(*args, **kwargs)
 
     def execute(self, context):
-        result = self.hook.get_first(sql='SELECT COUNT(*) FROM {};'.format(self.table_name))
+        result = self.hook.get_first(sql=f'SELECT COUNT(*) FROM {self.table_name};')
         return result

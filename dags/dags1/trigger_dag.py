@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from pendulum import datetime
+from pendulum.time import timedelta
 from airflow import DAG
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from airflow.operators.bash_operator import BashOperator
@@ -23,18 +24,18 @@ path_to_run_file = Variable.get(key='path_to_file', default_var=None)
 
 def print_pulled_value(**context):
     value = context['task_instance'].xcom_pull(task_ids='run_ended_flag')
-    print('{}'.format(value))
+    print(value)
 
 
 def load_subdag(parent_dag_name, child_dag_name, def_args):
-    dag_subdag = DAG(dag_id='{}.{}'.format(parent_dag_name, child_dag_name), default_args=def_args,
+    dag_subdag = DAG(dag_id=f'{parent_dag_name}.{child_dag_name}', default_args=def_args,
                      schedule_interval='@hourly')
 
     with dag_subdag:
         wait_to_finish_dag = ExternalTaskSensor(task_id='wait_for_dag', external_dag_id='gridu_dag',
                                                 execution_delta=timedelta(minutes=5),
                                                 external_task_id=None, allowed_states=['success'])
-        remove_a_file = BashOperator(task_id='remove_a_file', bash_command='rm {}'.format(path_to_run_file))
+        remove_a_file = BashOperator(task_id='remove_a_file', bash_command=f'rm {path_to_run_file}')
         print_a_result = PythonOperator(task_id='print_a_result', python_callable=print_pulled_value)
         create_a_file = BashOperator(task_id='create_a_file', bash_command='touch finished_{{ ts_nodash }}')
 
